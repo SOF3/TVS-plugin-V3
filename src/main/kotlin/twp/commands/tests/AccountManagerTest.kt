@@ -1,0 +1,46 @@
+package twp.commands.tests
+
+internal object AccountManagerTest : Test() {
+    @JvmStatic
+    fun main(args: Array<String>) {
+        Test.Companion.init()
+        Main.db!!.online[""] = Main.db!!.handler.loadData(object : DBPlayer() {})
+        AccountManager.game.run("", "new")
+        AccountManager.game.assertResult(Command.Result.notExplicit)
+        AccountManager.game.run("", "protect")
+        AccountManager.game.assertResult(Command.Result.notEnoughArgs)
+        AccountManager.game.run("", "protect", "a")
+        AccountManager.game.assertResult(Command.Result.confirm)
+        AccountManager.game.run("", "protect", "b")
+        AccountManager.game.assertResult(Command.Result.confirmFail)
+        AccountManager.game.run("", "protect", "a")
+        AccountManager.game.assertResult(Command.Result.confirm)
+        AccountManager.game.run("", "protect", "a")
+        AccountManager.game.assertResult(Command.Result.confirmSuccess)
+        AccountManager.game.run("", "protect", "a")
+        AccountManager.game.assertResult(Command.Result.alreadyProtected)
+        AccountManager.game.run("", "unprotect", "b")
+        AccountManager.game.assertResult(Command.Result.incorrectPassword)
+        AccountManager.game.run("", "unprotect", "a")
+        AccountManager.game.assertResult(Command.Result.unprotectSuccess)
+        AccountManager.game.run("", "protect", "a")
+        AccountManager.game.assertResult(Command.Result.confirm)
+        AccountManager.game.run("", "protect", "a")
+        AccountManager.game.assertResult(Command.Result.confirmSuccess)
+        AccountManager.game.run("", "abandon")
+        AccountManager.game.assertResult(Command.Result.success)
+        AccountManager.game.run("", "e", "a")
+        AccountManager.game.assertResult(Command.Result.notInteger)
+        AccountManager.game.run("", "100", "a")
+        AccountManager.game.assertResult(Command.Result.notFound)
+        AccountManager.game.run("", "0", "b")
+        AccountManager.game.assertResult(Command.Result.incorrectPassword)
+        AccountManager.game.run("", "0", "a")
+        AccountManager.game.assertResult(Command.Result.loginSuccess)
+        Main.db!!.handler.setRank(0, Main.ranks!!.griefer, RankType.rank)
+        val data = Main.db!!.handler.loadData(object : DBPlayer() {})
+        Main.db!!.online[""] = data
+        AccountManager.game.run("")
+        AccountManager.game.assertResult(Command.Result.noPerm)
+    }
+}
